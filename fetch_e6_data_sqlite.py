@@ -4,8 +4,7 @@ import requests
 from datetime import datetime
 import json
 import os
-import pymysql
-from db_config import DB_CONFIG
+import sqlite3
 
 # ==================== 配置区域 ====================
 # 使用易流平台获取的 appkey 和 appsecret
@@ -18,61 +17,63 @@ STORAGE_NAME = "福建汉吉斯冷链物流有限公司"
 # API 请求地址 (4.39 获取仓库最新温湿度数据)
 API_URL = "https://api.e6yun.com/public/v4/BL-MODULE-COLD-CHAIN-WEB/api/cold/storageTempHum/getStorageTempHum"
 
-# ==================================================
+# 本地数据存储目录
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+# 确保数据目录存在
+os.makedirs(DATA_DIR, exist_ok=True)
 
-def get_db_connection():
-    """
-    获取 MySQL 数据库连接
-    """
-    return pymysql.connect(**DB_CONFIG)
+# 数据库文件路径
+DB_PATH = os.path.join(DATA_DIR, "device_data.db")
+# ==================================================
 
 def init_db():
     """
-    初始化 MySQL 数据库并创建数据表
+    初始化 SQLite 数据库并创建数据表
     """
-    # 先连接到 MySQL Server (不指定数据库) 来创建数据库
-    temp_config = DB_CONFIG.copy()
-    db_name = temp_config.pop('database')
-    
-    try:
-        conn = pymysql.connect(**temp_config)
-        cursor = conn.cursor()
-        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"创建数据库失败 (可能已存在或权限不足): {e}")
-
-    # 连接到指定数据库创建表
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS device_data (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            collection_time VARCHAR(50),
-            storage_name VARCHAR(100),
-            location_name VARCHAR(100),
-            monitor_point_name VARCHAR(100),
-            device_number VARCHAR(50),
-            temperature FLOAT,
-            humidity FLOAT,
-            battery INT,
-            data_time VARCHAR(50)
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            collection_time TEXT,
+            storage_name TEXT,
+            location_name TEXT,
+            monitor_point_name TEXT,
+            device_number TEXT,
+            temperature REAL,
+            humidity REAL,
+            battery INTEGER,
+            data_time TEXT
         )
     ''')
     
+    # 检查 alarm_records 表结构是否匹配，如果不匹配则删除重建
+    # (为了简化逻辑，这里通过检查字段是否存在或顺序来判断，或者直接重建)
+    # 鉴于用户要求严格按照截图结构，我们采用重建策略以确保字段顺序和名称一致
+    try:
+        cursor.execute("PRAGMA table_info(alarm_records)")
+        columns = [info[1] for info in cursor.fetchall()]
+        expected_columns = ['id', 'storage_name', 'location_name', 'monitor_point_name', 'device_number', 'alarm_type', 'current_value', 'threshold', 'alarm_time']
+        
+        # 如果列名或数量不一致，则重建表
+        # 注意：这里会清空旧的报警数据，如果需要保留请先备份
+        if columns != expected_columns:
+            print("检测到 alarm_records 表结构变更，正在重建表...")
+            cursor.execute("DROP TABLE IF EXISTS alarm_records")
+    except Exception as e:
+        print(f"检查表结构时出错: {e}")
+
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS alarm_records (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            storage_name VARCHAR(100),
-            location_name VARCHAR(100),
-            monitor_point_name VARCHAR(100),
-            device_number VARCHAR(50),
-            alarm_type VARCHAR(50),
-            current_value FLOAT,
-            threshold FLOAT,
-            alarm_time VARCHAR(50)
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            storage_name TEXT,
+            location_name TEXT,
+            monitor_point_name TEXT,
+            device_number TEXT,
+            alarm_type TEXT,
+            current_value REAL,
+            threshold REAL,
+            alarm_time TEXT
         )
     ''')
     conn.commit()
@@ -83,13 +84,13 @@ def insert_alarm(alarm_dict):
     """
     插入一条报警记录
     """
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO alarm_records (
             storage_name, location_name, monitor_point_name, device_number, 
             alarm_type, current_value, threshold, alarm_time
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         alarm_dict.get('storage_name'),
         alarm_dict.get('location_name'),
@@ -108,23 +109,24 @@ def query_alarms(limit=10, offset=0, alarm_type=None):
     查询报警记录
     alarm_type: 报警类型筛选
     """
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
     query = 'SELECT * FROM alarm_records'
     params = []
     
     if alarm_type:
-        query += ' WHERE alarm_type = %s'
+        query += ' WHERE alarm_type = ?'
         params.append(alarm_type)
         
-    query += ' ORDER BY id DESC LIMIT %s OFFSET %s'
+    query += ' ORDER BY id DESC LIMIT ? OFFSET ?'
     params.extend([limit, offset])
     
     cursor.execute(query, params)
     rows = cursor.fetchall()
     conn.close()
-    return rows
+    return [dict(row) for row in rows]
 
 def update_alarm(record_id, update_dict):
     """
@@ -134,14 +136,14 @@ def update_alarm(record_id, update_dict):
     if not update_dict:
         return
         
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    set_clause = ', '.join([f"{k} = %s" for k in update_dict.keys()])
+    set_clause = ', '.join([f"{k} = ?" for k in update_dict.keys()])
     params = list(update_dict.values())
     params.append(record_id)
     
-    cursor.execute(f'UPDATE alarm_records SET {set_clause} WHERE id = %s', params)
+    cursor.execute(f'UPDATE alarm_records SET {set_clause} WHERE id = ?', params)
     conn.commit()
     conn.close()
 
@@ -149,9 +151,9 @@ def delete_alarm(record_id):
     """
     删除一条报警记录
     """
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM alarm_records WHERE id = %s', (record_id,))
+    cursor.execute('DELETE FROM alarm_records WHERE id = ?', (record_id,))
     conn.commit()
     conn.close()
 
@@ -159,13 +161,13 @@ def insert_data(data_dict):
     """
     插入一条温湿度数据
     """
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute('''
         INSERT INTO device_data (
             collection_time, storage_name, location_name, monitor_point_name,
             device_number, temperature, humidity, battery, data_time
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
         data_dict.get('collection_time'),
         data_dict.get('storage_name'),
@@ -184,12 +186,13 @@ def query_data(limit=10, offset=0):
     """
     查询温湿度数据
     """
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
+    conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM device_data ORDER BY id DESC LIMIT %s OFFSET %s', (limit, offset))
+    cursor.execute('SELECT * FROM device_data ORDER BY id DESC LIMIT ? OFFSET ?', (limit, offset))
     rows = cursor.fetchall()
     conn.close()
-    return rows
+    return [dict(row) for row in rows]
 
 def update_data(record_id, update_dict):
     """
@@ -198,13 +201,13 @@ def update_data(record_id, update_dict):
     if not update_dict:
         return
     
-    set_clause = ", ".join([f"{k} = %s" for k in update_dict.keys()])
+    set_clause = ", ".join([f"{k} = ?" for k in update_dict.keys()])
     values = list(update_dict.values())
     values.append(record_id)
     
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute(f'UPDATE device_data SET {set_clause} WHERE id = %s', values)
+    cursor.execute(f'UPDATE device_data SET {set_clause} WHERE id = ?', values)
     conn.commit()
     conn.close()
 
@@ -212,9 +215,9 @@ def delete_data(record_id):
     """
     删除一条温湿度数据
     """
-    conn = get_db_connection()
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM device_data WHERE id = %s', (record_id,))
+    cursor.execute('DELETE FROM device_data WHERE id = ?', (record_id,))
     conn.commit()
     conn.close()
 # ==================================================
@@ -302,9 +305,9 @@ def fetch_equip_data():
                         temp_alarm_type = None
                         temp_threshold = None
                         
-                        if temp_val > -17:
+                        if temp_val > -19:
                             temp_alarm_type = "库温过高报警"
-                            temp_threshold = -17
+                            temp_threshold = -19
                         elif temp_val < -21:
                             temp_alarm_type = "库温过低报警"
                             temp_threshold = -21
@@ -323,8 +326,8 @@ def fetch_equip_data():
                             })
                             
                         # 2. 电量报警判断
-                        if elec_val < 20:
-                            print(f"    ⚠️ 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: 20%)")
+                        if elec_val < 97:
+                            print(f"    ⚠️ 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: 15%)")
                             insert_alarm({
                                 'storage_name': STORAGE_NAME,
                                 'location_name': loc_name,
@@ -332,14 +335,14 @@ def fetch_equip_data():
                                 'device_number': equip_code,
                                 'alarm_type': "电池低电量报警",
                                 'current_value': elec_val,
-                                'threshold': 20,
+                                'threshold': 97,
                                 'alarm_time': timestamp
                             })
                             
                     except Exception as e:
                         print(f"    ❌ 报警判断出错: {e}")
 
-                    # 保存到 MySQL 数据库
+                    # 保存到 SQLite 数据库
                     insert_data({
                         'collection_time': timestamp,
                         'storage_name': STORAGE_NAME,
@@ -369,7 +372,7 @@ if __name__ == "__main__":
     print("=" * 60)
     print(" 开始定时采集仓库温湿度数据 (接口 4.39)，每 300 秒(5分钟)采集一次...")
     print(f" 目标仓库: {STORAGE_NAME}")
-    print(f" 数据将保存在 MySQL 数据库: {DB_CONFIG['database']}")
+    print(f" 数据将保存在: {DB_PATH} 数据库中")
     print(" (按 Ctrl+C 停止运行)")
     print("=" * 60)
     
