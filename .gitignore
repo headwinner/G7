@@ -1,3 +1,4 @@
 data/
 .venv/
 mysql_data/
+__pycache__/
