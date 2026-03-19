@@ -2,3 +2,6 @@ data/
 .venv/
 mysql_data/
 __pycache__/
+mariadb-10.11.7-winx64/
+mariadb.zip
+db_config.py

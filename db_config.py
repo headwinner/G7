@@ -1,12 +1,13 @@
 import pymysql.cursors
+from config import config
 
 # MySQL 数据库配置
 DB_CONFIG = {
-    'host': 'localhost',
-    'port': 3306,
-    'user': 'root',
-    'password': '',  # 本地开发环境默认无密码
-    'database': 'device_monitor', # 数据库名称
+    'host': config.DB_HOST,
+    'port': config.DB_PORT,
+    'user': config.DB_USER,
+    'password': config.DB_PASSWORD,
+    'database': config.DB_NAME,
     'charset': 'utf8mb4',
     'cursorclass': pymysql.cursors.DictCursor
 }
