@@ -302,9 +302,9 @@ def fetch_equip_data():
                         temp_alarm_type = None
                         temp_threshold = None
                         
-                        if temp_val > -17:
+                        if temp_val > -19:
                             temp_alarm_type = "库温过高报警"
-                            temp_threshold = -17
+                            temp_threshold = -19
                         elif temp_val < -21:
                             temp_alarm_type = "库温过低报警"
                             temp_threshold = -21
@@ -323,7 +323,7 @@ def fetch_equip_data():
                             })
                             
                         # 2. 电量报警判断
-                        if elec_val < 20:
+                        if elec_val < 98:
                             print(f"    ⚠️ 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: 20%)")
                             insert_alarm({
                                 'storage_name': STORAGE_NAME,
@@ -332,7 +332,7 @@ def fetch_equip_data():
                                 'device_number': equip_code,
                                 'alarm_type': "电池低电量报警",
                                 'current_value': elec_val,
-                                'threshold': 20,
+                                'threshold': 98,
                                 'alarm_time': timestamp
                             })
                             
