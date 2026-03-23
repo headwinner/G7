@@ -23,6 +23,8 @@ CREATE TABLE IF NOT EXISTS `open_api_users` (
 CREATE TABLE IF NOT EXISTS `open_api_logs` (
     `id` BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
     `app_key` VARCHAR(64) NOT NULL COMMENT '调用的AppKey',
+    `company_name` VARCHAR(100) COMMENT '调用方公司名称',
+    `contact_name` VARCHAR(50) COMMENT '调用方联系人',
     `api_endpoint` VARCHAR(100) NOT NULL COMMENT '请求的接口路由或方法名',
     `request_ip` VARCHAR(50) COMMENT '请求方IP',
     `response_code` INT COMMENT '业务响应状态码 (如 200, 401, 500)',

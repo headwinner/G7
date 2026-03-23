@@ -35,14 +35,14 @@ def get_user_by_appkey(app_key):
         print(f"数据库查询失败: {e}")
         return None
 
-def log_api_call(app_key, endpoint, ip, status_code, cost_time):
-    """记录 API 调用日志"""
+def log_api_call(app_key, company_name, contact_name, endpoint, ip, status_code, cost_time):
+    """记录 API 调用日志，包含用户信息"""
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO open_api_logs (app_key, api_endpoint, request_ip, response_code, cost_time_ms) VALUES (%s, %s, %s, %s, %s)",
-            (app_key, endpoint, ip, status_code, cost_time)
+            "INSERT INTO open_api_logs (app_key, company_name, contact_name, api_endpoint, request_ip, response_code, cost_time_ms) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+            (app_key, company_name, contact_name, endpoint, ip, status_code, cost_time)
         )
         conn.commit()
         conn.close()
@@ -109,7 +109,12 @@ def require_open_api_auth(func):
         # 记录日志
         cost_ms = int((time.time() - start_time) * 1000)
         status_code = response[1] if isinstance(response, tuple) else 200
-        log_api_call(app_key, request.path, request.remote_addr, status_code, cost_ms)
+        
+        # 从鉴权得到的用户信息中提取需要记录的信息
+        company_name = user_info.get('company_name', 'Unknown')
+        contact_name = user_info.get('contact_name', 'Unknown')
+        
+        log_api_call(app_key, company_name, contact_name, request.path, request.remote_addr, status_code, cost_ms)
         
         return response
     return wrapper
@@ -125,8 +130,17 @@ def get_device_data(request_params, api_caller=None):
     提供给第三方的温湿度及电量数据查询接口 (查询 device_data 表)
     """
     storage_name = request_params.get('storage_name')
-    limit = int(request_params.get('limit', 6))
-    
+    # 获取用户传入的 limit，如果没有传则默认为 6。
+    # 强制限制最大条数为 6，即使用户传了更大的数字也只返回 6 条
+    limit_param = request_params.get('limit')
+    limit = 6
+    if limit_param is not None and str(limit_param).strip() != '':
+        try:
+            parsed_limit = int(limit_param)
+            limit = parsed_limit if parsed_limit < 6 else 6
+        except ValueError:
+            limit = 6
+            
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -148,7 +162,11 @@ def get_device_data(request_params, api_caller=None):
         return jsonify({
             "code": 200,
             "msg": "success",
-            "caller_company": api_caller['company_name'],
+            "caller_info": {
+                "company_name": api_caller['company_name'],
+                "contact_name": api_caller['contact_name'],
+                "contact_phone": api_caller['contact_phone']
+            },
             "data": device_data_list
         })
         
@@ -163,8 +181,17 @@ def get_alarm_records(request_params, api_caller=None):
     提供给第三方的报警记录查询接口 (查询 alarm_records 表)
     """
     storage_name = request_params.get('storage_name')
-    limit = int(request_params.get('limit', 10))
-    
+    # 获取用户传入的 limit，如果没有传则默认为 6。
+    # 强制限制最大条数为 6，即使用户传了更大的数字也只返回 6 条
+    limit_param = request_params.get('limit')
+    limit = 6
+    if limit_param is not None and str(limit_param).strip() != '':
+        try:
+            parsed_limit = int(limit_param)
+            limit = parsed_limit if parsed_limit < 6 else 6
+        except ValueError:
+            limit = 6
+            
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
@@ -186,7 +213,11 @@ def get_alarm_records(request_params, api_caller=None):
         return jsonify({
             "code": 200,
             "msg": "success",
-            "caller_company": api_caller['company_name'],
+            "caller_info": {
+                "company_name": api_caller['company_name'],
+                "contact_name": api_caller['contact_name'],
+                "contact_phone": api_caller['contact_phone']
+            },
             "data": alarm_data_list
         })
         
