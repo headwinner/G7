@@ -40,9 +40,10 @@ def log_api_call(app_key, company_name, contact_name, endpoint, ip, status_code,
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        # 更新 SQL 语句，确保字段名与实际数据库表结构匹配
         cursor.execute(
-            "INSERT INTO open_api_logs (app_key, company_name, contact_name, api_endpoint, request_ip, response_code, cost_time_ms) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (app_key, company_name, contact_name, endpoint, ip, status_code, cost_time)
+            "INSERT INTO open_api_logs (app_key, api_endpoint, request_ip, response_code, cost_time_ms) VALUES (%s, %s, %s, %s, %s)",
+            (app_key, endpoint, ip, status_code, cost_time)
         )
         conn.commit()
         conn.close()
@@ -69,12 +70,12 @@ def require_open_api_auth(func):
         if not app_key or not timestamp_str or not client_sign:
             return jsonify({"code": 400, "msg": "缺少必要参数: appkey, timestamp 或 sign"}), 400
             
-        # 2. 防重放攻击 (5分钟误差)
+        # 2. 防重放攻击 (已取消 5分钟误差校验)
         try:
             client_time = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
-            diff_seconds = abs((datetime.now() - client_time).total_seconds())
-            if diff_seconds > 300:
-                return jsonify({"code": 401, "msg": "请求已过期或时间戳不准确"}), 401
+            # diff_seconds = abs((datetime.now() - client_time).total_seconds())
+            # if diff_seconds > 300:
+            #     return jsonify({"code": 401, "msg": "请求已过期或时间戳不准确"}), 401
         except Exception:
             return jsonify({"code": 400, "msg": "时间戳格式错误，应为 YYYY-MM-DD HH:mm:ss"}), 400
 
