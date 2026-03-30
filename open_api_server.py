@@ -229,7 +229,8 @@ if __name__ == '__main__':
     print("=====================================================")
     print(" 开放 API 服务正在启动...")
     print(" 请确保您已在数据库中执行了 open_api_design.sql 创建了相关表")
-    print(" 监听地址: http://0.0.0.0:15898")
+    print(" 监听地址: http://127.0.0.1:15898 (仅限本地访问，请通过 Nginx 反向代理提供外网 HTTPS 服务)")
+    print(" 外网地址: https://video.fusionfintrade.com/")
     print("=====================================================")
-    # 绑定 0.0.0.0 允许外部网络访问
-    app.run(host='0.0.0.0', port=15898, debug=False)
+    # 绑定 127.0.0.1 仅允许本地 Nginx 代理访问，提升安全性
+    app.run(host='127.0.0.1', port=15898, debug=False)
