@@ -5,3 +5,7 @@ __pycache__/
 mariadb-10.11.7-winx64/
 mariadb.zip
 db_config.py
+open_api_server.err.log
+open_api_server.log
+fetch_e6_data.err.log
+fetch_e6_data.log
