@@ -1,0 +1,76 @@
+2026-04-30 10:49:31,639 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:31,671 INFO  - Stopping service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 10:49:31,685 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' has already stopped.
+2026-04-30 10:49:32,110 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:32,139 INFO  - Uninstalling service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 10:49:32,144 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' was uninstalled successfully.
+2026-04-30 10:49:33,477 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:33,507 INFO  - Installing service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 10:49:33,532 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' was installed successfully.
+2026-04-30 10:49:33,949 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:33,982 INFO  - Starting service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 10:49:34,382 DEBUG - Starting WinSW in service mode
+2026-04-30 10:49:34,410 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' started successfully.
+2026-04-30 10:49:34,509 INFO  - Starting python fetch_e6_data.py
+2026-04-30 10:49:34,533 INFO  - Started process 14544
+2026-04-30 10:49:34,546 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 11:37:42,034 DEBUG - Starting WinSW in console mode
+2026-04-30 11:37:42,069 INFO  - Stopping service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 11:37:42,104 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' stopped successfully.
+2026-04-30 11:37:42,104 INFO  - Stopping G7-Fetcher
+2026-04-30 11:37:42,105 DEBUG - ProcessKill 14544
+2026-04-30 11:37:42,107 DEBUG - Stopping process 14544...
+2026-04-30 11:37:42,139 DEBUG - Process 14544 canceled with code -1073741510.
+2026-04-30 11:37:42,142 INFO  - Finished G7-Fetcher
+2026-04-30 11:37:52,318 DEBUG - Starting WinSW in console mode
+2026-04-30 11:37:52,349 INFO  - Uninstalling service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 11:37:52,386 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' was uninstalled successfully.
+2026-04-30 11:40:48,348 DEBUG - Starting WinSW in console mode
+2026-04-30 11:40:48,381 INFO  - Installing service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 11:40:48,435 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' was installed successfully.
+2026-04-30 11:41:25,467 DEBUG - Starting WinSW in console mode
+2026-04-30 11:41:25,504 INFO  - Starting service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 11:41:25,935 DEBUG - Starting WinSW in service mode
+2026-04-30 11:41:25,962 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' started successfully.
+2026-04-30 11:41:26,063 INFO  - Starting C:\Python314\python.exe fetch_e6_data.py
+2026-04-30 11:41:26,084 INFO  - Started process 27356
+2026-04-30 11:41:26,096 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 11:58:17,124 DEBUG - Starting WinSW in console mode
+2026-04-30 11:58:17,164 INFO  - Stopping service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 11:58:17,195 INFO  - Stopping G7-Fetcher
+2026-04-30 11:58:17,195 DEBUG - ProcessKill 27356
+2026-04-30 11:58:17,197 DEBUG - Stopping process 27356...
+2026-04-30 11:58:17,227 DEBUG - Process 27356 canceled with code -1073741510.
+2026-04-30 11:58:17,230 INFO  - Finished G7-Fetcher
+2026-04-30 11:58:17,449 INFO  - Starting service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 11:58:17,853 DEBUG - Starting WinSW in service mode
+2026-04-30 11:58:17,979 INFO  - Starting C:\Python314\python.exe fetch_e6_data.py
+2026-04-30 11:58:18,000 INFO  - Started process 16520
+2026-04-30 11:58:18,012 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 11:58:18,130 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' restarted successfully.
+2026-04-30 12:00:33,471 DEBUG - Starting WinSW in console mode
+2026-04-30 12:00:33,510 INFO  - Stopping service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 12:00:33,541 INFO  - Stopping G7-Fetcher
+2026-04-30 12:00:33,541 DEBUG - ProcessKill 16520
+2026-04-30 12:00:33,543 DEBUG - Stopping process 16520...
+2026-04-30 12:00:33,576 DEBUG - Process 16520 canceled with code -1073741510.
+2026-04-30 12:00:33,579 INFO  - Finished G7-Fetcher
+2026-04-30 12:00:33,795 INFO  - Starting service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 12:00:34,203 DEBUG - Starting WinSW in service mode
+2026-04-30 12:00:34,332 INFO  - Starting C:\Python314\python.exe fetch_e6_data.py
+2026-04-30 12:00:34,354 INFO  - Started process 13292
+2026-04-30 12:00:34,367 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 12:00:34,483 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' restarted successfully.
+2026-04-30 12:01:24,094 DEBUG - Starting WinSW in console mode
+2026-04-30 12:01:24,135 INFO  - Stopping service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 12:01:24,165 INFO  - Stopping G7-Fetcher
+2026-04-30 12:01:24,166 DEBUG - ProcessKill 13292
+2026-04-30 12:01:24,168 DEBUG - Stopping process 13292...
+2026-04-30 12:01:24,198 DEBUG - Process 13292 canceled with code -1073741510.
+2026-04-30 12:01:24,201 INFO  - Finished G7-Fetcher
+2026-04-30 12:01:24,421 INFO  - Starting service 'G7 Data Fetcher Service (G7-Fetcher)'...
+2026-04-30 12:01:24,822 DEBUG - Starting WinSW in service mode
+2026-04-30 12:01:24,969 INFO  - Starting C:\Python314\python.exe fetch_e6_data.py
+2026-04-30 12:01:24,991 INFO  - Started process 12140
+2026-04-30 12:01:25,004 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 12:01:25,100 INFO  - Service 'G7 Data Fetcher Service (G7-Fetcher)' restarted successfully.

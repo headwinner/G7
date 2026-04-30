@@ -1,0 +1,15 @@
+<service>
+  <id>G7-Fetcher</id>
+  <name>G7 Data Fetcher Service</name>
+  <description>G7 温湿度数据采集后台服务 (每5分钟采集一次并存入数据库)</description>
+  <executable>C:\Python314\python.exe</executable>
+  <arguments>fetch_e6_data.py</arguments>
+  <!-- 设置生产环境环境变量，确保加载 .env.production -->
+  <env name="APP_ENV" value="production" />
+  <env name="PYTHONUNBUFFERED" value="1" />
+  <logpath>logs</logpath>
+  <log mode="roll"></log>
+  <workingdirectory>c:\Trae\Github\G7</workingdirectory>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+</service>

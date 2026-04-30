@@ -1,0 +1,15 @@
+<service>
+  <id>G7-API</id>
+  <name>G7 API Server Service</name>
+  <description>G7 开放平台 API 接口服务 (监听端口 15898)</description>
+  <executable>C:\Python314\python.exe</executable>
+  <arguments>open_api_server.py</arguments>
+  <!-- 设置生产环境环境变量 -->
+  <env name="APP_ENV" value="production" />
+  <env name="PYTHONUNBUFFERED" value="1" />
+  <logpath>logs</logpath>
+  <log mode="roll"></log>
+  <workingdirectory>c:\Trae\Github\G7</workingdirectory>
+  <startmode>Automatic</startmode>
+  <delayedAutoStart>true</delayedAutoStart>
+</service>

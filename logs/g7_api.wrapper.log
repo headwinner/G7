@@ -1,0 +1,50 @@
+2026-04-30 10:49:32,562 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:32,595 INFO  - Stopping service 'G7 API Server Service (G7-API)'...
+2026-04-30 10:49:32,609 INFO  - Service 'G7 API Server Service (G7-API)' has already stopped.
+2026-04-30 10:49:33,024 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:33,052 INFO  - Uninstalling service 'G7 API Server Service (G7-API)'...
+2026-04-30 10:49:33,057 INFO  - Service 'G7 API Server Service (G7-API)' was uninstalled successfully.
+2026-04-30 10:49:34,823 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:34,852 INFO  - Installing service 'G7 API Server Service (G7-API)'...
+2026-04-30 10:49:34,877 INFO  - Service 'G7 API Server Service (G7-API)' was installed successfully.
+2026-04-30 10:49:35,289 DEBUG - Starting WinSW in console mode
+2026-04-30 10:49:35,321 INFO  - Starting service 'G7 API Server Service (G7-API)'...
+2026-04-30 10:49:35,723 DEBUG - Starting WinSW in service mode
+2026-04-30 10:49:35,750 INFO  - Service 'G7 API Server Service (G7-API)' started successfully.
+2026-04-30 10:49:35,850 INFO  - Starting python open_api_server.py
+2026-04-30 10:49:35,871 INFO  - Started process 30228
+2026-04-30 10:49:35,883 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 11:42:13,058 DEBUG - Starting WinSW in console mode
+2026-04-30 11:42:13,095 INFO  - Stopping service 'G7 API Server Service (G7-API)'...
+2026-04-30 11:42:13,130 INFO  - Service 'G7 API Server Service (G7-API)' stopped successfully.
+2026-04-30 11:42:13,131 INFO  - Stopping G7-API
+2026-04-30 11:42:13,131 DEBUG - ProcessKill 30228
+2026-04-30 11:42:13,133 DEBUG - Stopping process 30228...
+2026-04-30 11:42:13,564 DEBUG - Process 30228 canceled with code 0.
+2026-04-30 11:42:13,567 INFO  - Finished G7-API
+2026-04-30 11:42:43,564 DEBUG - Starting WinSW in console mode
+2026-04-30 11:42:43,597 INFO  - Uninstalling service 'G7 API Server Service (G7-API)'...
+2026-04-30 11:42:43,633 INFO  - Service 'G7 API Server Service (G7-API)' was uninstalled successfully.
+2026-04-30 11:42:48,276 DEBUG - Starting WinSW in console mode
+2026-04-30 11:42:48,307 INFO  - Installing service 'G7 API Server Service (G7-API)'...
+2026-04-30 11:42:48,361 INFO  - Service 'G7 API Server Service (G7-API)' was installed successfully.
+2026-04-30 11:42:54,281 DEBUG - Starting WinSW in console mode
+2026-04-30 11:42:54,318 INFO  - Starting service 'G7 API Server Service (G7-API)'...
+2026-04-30 11:42:54,760 DEBUG - Starting WinSW in service mode
+2026-04-30 11:42:54,790 INFO  - Service 'G7 API Server Service (G7-API)' started successfully.
+2026-04-30 11:42:54,891 INFO  - Starting C:\Python314\python.exe open_api_server.py
+2026-04-30 11:42:54,913 INFO  - Started process 15452
+2026-04-30 11:42:54,926 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 11:58:23,710 DEBUG - Starting WinSW in console mode
+2026-04-30 11:58:23,750 INFO  - Stopping service 'G7 API Server Service (G7-API)'...
+2026-04-30 11:58:23,780 INFO  - Stopping G7-API
+2026-04-30 11:58:23,780 DEBUG - ProcessKill 15452
+2026-04-30 11:58:23,782 DEBUG - Stopping process 15452...
+2026-04-30 11:58:23,996 DEBUG - Process 15452 canceled with code 0.
+2026-04-30 11:58:23,999 INFO  - Finished G7-API
+2026-04-30 11:58:24,034 INFO  - Starting service 'G7 API Server Service (G7-API)'...
+2026-04-30 11:58:24,438 DEBUG - Starting WinSW in service mode
+2026-04-30 11:58:24,565 INFO  - Starting C:\Python314\python.exe open_api_server.py
+2026-04-30 11:58:24,587 INFO  - Started process 22396
+2026-04-30 11:58:24,600 DEBUG - Forwarding logs of the process System.Diagnostics.Process (python) to WinSW.RollingLogAppender
+2026-04-30 11:58:24,716 INFO  - Service 'G7 API Server Service (G7-API)' restarted successfully.
