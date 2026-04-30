@@ -4,8 +4,20 @@ import requests
 from datetime import datetime
 import json
 import os
+import sys
 import pymysql
 from db_config import DB_CONFIG
+
+def log(msg):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    full_msg = f"[{timestamp}] {msg}"
+    print(full_msg)
+    sys.stdout.flush()
+    try:
+        with open("logs/python_debug.log", "a", encoding="utf-8") as f:
+            f.write(full_msg + "\n")
+    except:
+        pass
 
 # ==================== 配置区域 ====================
 # 使用易流平台获取的 appkey 和 appsecret
@@ -24,12 +36,17 @@ def get_db_connection():
     """
     获取 MySQL 数据库连接
     """
-    return pymysql.connect(**DB_CONFIG)
+    try:
+        return pymysql.connect(**DB_CONFIG)
+    except Exception as e:
+        log(f"数据库连接失败: {e}")
+        raise
 
 def init_db():
     """
     初始化 MySQL 数据库并创建数据表
     """
+    log("正在初始化数据库...")
     # 先连接到 MySQL Server (不指定数据库) 来创建数据库
     temp_config = DB_CONFIG.copy()
     db_name = temp_config.pop('database')
@@ -40,68 +57,77 @@ def init_db():
         cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name} CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")
         conn.commit()
         conn.close()
+        log(f"数据库 {db_name} 确认存在")
     except Exception as e:
-        print(f"创建数据库失败 (可能已存在或权限不足): {e}")
+        log(f"创建数据库失败 (可能已存在或权限不足): {e}")
 
     # 连接到指定数据库创建表
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS device_data (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            collection_time VARCHAR(50),
-            storage_name VARCHAR(100),
-            location_name VARCHAR(100),
-            monitor_point_name VARCHAR(100),
-            device_number VARCHAR(50),
-            temperature FLOAT,
-            humidity FLOAT,
-            battery INT,
-            data_time VARCHAR(50)
-        )
-    ''')
-    
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS alarm_records (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            storage_name VARCHAR(100),
-            location_name VARCHAR(100),
-            monitor_point_name VARCHAR(100),
-            device_number VARCHAR(50),
-            alarm_type VARCHAR(50),
-            current_value FLOAT,
-            threshold FLOAT,
-            alarm_time VARCHAR(50)
-        )
-    ''')
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS device_data (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                collection_time VARCHAR(50),
+                storage_name VARCHAR(100),
+                location_name VARCHAR(100),
+                monitor_point_name VARCHAR(100),
+                device_number VARCHAR(50),
+                temperature FLOAT,
+                humidity FLOAT,
+                battery INT,
+                data_time VARCHAR(50)
+            )
+        ''')
+        
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS alarm_records (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                storage_name VARCHAR(100),
+                location_name VARCHAR(100),
+                monitor_point_name VARCHAR(100),
+                device_number VARCHAR(50),
+                alarm_type VARCHAR(50),
+                current_value FLOAT,
+                threshold FLOAT,
+                alarm_time VARCHAR(50)
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        log("数据表检查完成")
+    except Exception as e:
+        log(f"初始化数据表失败: {e}")
+        raise
 
 # ==================== CRUD 操作 ====================
 def insert_alarm(alarm_dict):
     """
     插入一条报警记录
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO alarm_records (
-            storage_name, location_name, monitor_point_name, device_number, 
-            alarm_type, current_value, threshold, alarm_time
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (
-        alarm_dict.get('storage_name'),
-        alarm_dict.get('location_name'),
-        alarm_dict.get('monitor_point_name'),
-        alarm_dict.get('device_number'),
-        alarm_dict.get('alarm_type'),
-        alarm_dict.get('current_value'),
-        alarm_dict.get('threshold'),
-        alarm_dict.get('alarm_time')
-    ))
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO alarm_records (
+                storage_name, location_name, monitor_point_name, device_number, 
+                alarm_type, current_value, threshold, alarm_time
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (
+            alarm_dict.get('storage_name'),
+            alarm_dict.get('location_name'),
+            alarm_dict.get('monitor_point_name'),
+            alarm_dict.get('device_number'),
+            alarm_dict.get('alarm_type'),
+            alarm_dict.get('current_value'),
+            alarm_dict.get('threshold'),
+            alarm_dict.get('alarm_time')
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        log(f"插入报警记录失败: {e}")
 
 def query_alarms(limit=10, offset=0, alarm_type=None):
     """
@@ -159,26 +185,29 @@ def insert_data(data_dict):
     """
     插入一条温湿度数据
     """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        INSERT INTO device_data (
-            collection_time, storage_name, location_name, monitor_point_name,
-            device_number, temperature, humidity, battery, data_time
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (
-        data_dict.get('collection_time'),
-        data_dict.get('storage_name'),
-        data_dict.get('location_name'),
-        data_dict.get('monitor_point_name'),
-        data_dict.get('device_number'),
-        data_dict.get('temperature'),
-        data_dict.get('humidity'),
-        data_dict.get('battery'),
-        data_dict.get('data_time')
-    ))
-    conn.commit()
-    conn.close()
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute('''
+            INSERT INTO device_data (
+                collection_time, storage_name, location_name, monitor_point_name,
+                device_number, temperature, humidity, battery, data_time
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (
+            data_dict.get('collection_time'),
+            data_dict.get('storage_name'),
+            data_dict.get('location_name'),
+            data_dict.get('monitor_point_name'),
+            data_dict.get('device_number'),
+            data_dict.get('temperature'),
+            data_dict.get('humidity'),
+            data_dict.get('battery'),
+            data_dict.get('data_time')
+        ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        log(f"插入温湿度数据失败: {e}")
 
 def query_data(limit=10, offset=0):
     """
@@ -251,24 +280,20 @@ def fetch_equip_data():
     params["sign"] = generate_sign(APP_SECRET, params)
     
     # 打印请求参数供排查
-    print(f"\n[{timestamp}] 发起请求, 接口: {API_URL}")
-    print(f"请求参数: {json.dumps(params, ensure_ascii=False, indent=2)}")
+    log(f"发起请求, 接口: {API_URL}")
     
     try:
         # 发送POST请求 (application/x-www-form-urlencoded)
-        response = requests.post(API_URL, data=params, timeout=10)
+        response = requests.post(API_URL, data=params, timeout=15)
         response.raise_for_status()
         
         result = response.json()
         
-        # 打印返回结果供调试
-        # print(f"返回结果: {json.dumps(result, ensure_ascii=False, indent=2)}")
-
         if result.get("code") == 1:
             data = result.get("data", {})
             location_list = data.get("locationList", [])
             
-            print(f"[{timestamp}] 数据采集成功，获取到 {len(location_list)} 个区位的数据:")
+            log(f"数据采集成功，获取到 {len(location_list)} 个区位的数据")
             
             count = 0
             for location in location_list:
@@ -287,18 +312,14 @@ def fetch_equip_data():
                     if temp == -999 or hum == -1:
                         continue
                         
-                    print(f"  - {loc_name} | {point_name} ({equip_code}): 温度={temp}℃, 湿度={hum}%RH, 电量={elec}%")
+                    # log(f"  - {loc_name} | {point_name} ({equip_code}): 温度={temp}℃, 湿度={hum}%RH, 电量={elec}%")
                     
                     # 报警判断逻辑
-                    # 以-19℃为基准，高于-17℃报警过高，低于-21℃报警过低
-                    # 电量低于15%报警
                     try:
                         temp_val = float(temp)
-                        # 处理电量数据，可能是数字或带%的字符串
                         elec_str = str(elec)
                         elec_val = int(elec_str.replace('%', '')) if '%' in elec_str else int(float(elec_str))
                         
-                        # 1. 温度报警判断
                         temp_alarm_type = None
                         temp_threshold = None
                         
@@ -310,7 +331,7 @@ def fetch_equip_data():
                             temp_threshold = -21
                             
                         if temp_alarm_type:
-                            print(f"    ⚠️ 触发报警: {temp_alarm_type} (当前: {temp_val}℃, 阈值: {temp_threshold}℃)")
+                            log(f"    [ALARM] 触发报警: {temp_alarm_type} (当前: {temp_val}degC, 阈值: {temp_threshold}degC)")
                             insert_alarm({
                                 'storage_name': STORAGE_NAME,
                                 'location_name': loc_name,
@@ -322,9 +343,8 @@ def fetch_equip_data():
                                 'alarm_time': timestamp
                             })
                             
-                        # 2. 电量报警判断
                         if elec_val < 98:
-                            print(f"    ⚠️ 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: 20%)")
+                            log(f"    [ALARM] 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: 20%)")
                             insert_alarm({
                                 'storage_name': STORAGE_NAME,
                                 'location_name': loc_name,
@@ -337,7 +357,7 @@ def fetch_equip_data():
                             })
                             
                     except Exception as e:
-                        print(f"    ❌ 报警判断出错: {e}")
+                        log(f"    [ERROR] 报警判断出错: {e}")
 
                     # 保存到 MySQL 数据库
                     insert_data({
@@ -351,28 +371,39 @@ def fetch_equip_data():
                         'battery': elec,
                         'data_time': gps_time
                     })
+                    log(f"  - 保存数据: {loc_name} | {point_name} | Temp={temp} | Time={gps_time}")
                     count += 1
             
             if count == 0:
-                 print("  (未找到有效温湿度数据)")
+                 log("  (未找到有效温湿度数据)")
+            else:
+                log(f"成功保存 {count} 条监测点数据")
 
         else:
-            print(f"[{timestamp}] 接口调用失败: {result.get('message', '未知错误')} (Code: {result.get('code')})")
+            log(f"接口调用失败: {result.get('message', '未知错误')} (Code: {result.get('code')})")
             
     except Exception as e:
-        print(f"[{timestamp}] 请求发生异常: {e}")
+        log(f"请求发生异常: {e}")
 
 if __name__ == "__main__":
-    # 初始化数据库
-    init_db()
-    
-    print("=" * 60)
-    print(" 开始定时采集仓库温湿度数据 (接口 4.39)，每 300 秒(5分钟)采集一次...")
-    print(f" 目标仓库: {STORAGE_NAME}")
-    print(f" 数据将保存在 MySQL 数据库: {DB_CONFIG['database']}")
-    print(" (按 Ctrl+C 停止运行)")
-    print("=" * 60)
-    
-    while True:
-        fetch_equip_data()
-        time.sleep(300)
+    try:
+        log("=" * 60)
+        log(" G7 数据采集服务启动中...")
+        log(f" 目标仓库: {STORAGE_NAME}")
+        
+        # 初始化数据库
+        init_db()
+        
+        log(" 开始定时采集数据，每 300 秒(5分钟)采集一次...")
+        log("=" * 60)
+        
+        while True:
+            try:
+                fetch_equip_data()
+            except Exception as e:
+                log(f"采集循环发生未捕获异常: {e}")
+            
+            time.sleep(300)
+    except Exception as e:
+        log(f"服务发生致命错误，即将退出: {e}")
+        sys.exit(1)
