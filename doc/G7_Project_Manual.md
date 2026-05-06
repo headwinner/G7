@@ -43,8 +43,7 @@ c:\Trae\Github\G7\
 │   ├── g7_api.err.log        # API 服务错误日志
 │   ├── g7_api.out.log        # API 服务标准输出日志
 │   ├── g7_fetcher.err.log    # 采集服务错误日志
-│   ├── g7_fetcher.out.log    # 采集服务标准输出日志
-│   └── python_debug.log      # Python 脚本自定义详细日志
+│   └── g7_fetcher.out.log    # 采集服务标准输出日志
 ├── g7_fetcher.exe            # 采集服务执行程序 (WinSW)
 ├── g7_fetcher.xml            # 采集服务配置
 ├── g7_api.exe                # API 服务执行程序 (WinSW)

@@ -10,5 +10,4 @@ open_api_server.log
 fetch_e6_data.err.log
 fetch_e6_data.log
 logs/
-python_debug.log
 

@@ -13,11 +13,6 @@ def log(msg):
     full_msg = f"[{timestamp}] {msg}"
     print(full_msg)
     sys.stdout.flush()
-    try:
-        with open("logs/python_debug.log", "a", encoding="utf-8") as f:
-            f.write(full_msg + "\n")
-    except:
-        pass
 
 # ==================== 配置区域 ====================
 # 使用易流平台获取的 appkey 和 appsecret
