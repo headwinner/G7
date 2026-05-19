@@ -25,6 +25,9 @@ STORAGE_NAME = "福建汉吉斯冷链物流有限公司"
 # API 请求地址 (4.39 获取仓库最新温湿度数据)
 API_URL = "https://api.e6yun.com/public/v4/BL-MODULE-COLD-CHAIN-WEB/api/cold/storageTempHum/getStorageTempHum"
 
+# 低电量报警阈值（百分比）
+LOW_BATTERY_ALARM_THRESHOLD = 30
+
 # ==================================================
 
 def get_db_connection():
@@ -338,8 +341,8 @@ def fetch_equip_data():
                                 'alarm_time': timestamp
                             })
                             
-                        if elec_val < 98:
-                            log(f"    [ALARM] 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: 20%)")
+                        if elec_val < LOW_BATTERY_ALARM_THRESHOLD:
+                            log(f"    [ALARM] 触发报警: 电池低电量报警 (当前: {elec_val}%, 阈值: {LOW_BATTERY_ALARM_THRESHOLD}%)")
                             insert_alarm({
                                 'storage_name': STORAGE_NAME,
                                 'location_name': loc_name,
@@ -347,7 +350,7 @@ def fetch_equip_data():
                                 'device_number': equip_code,
                                 'alarm_type': "电池低电量报警",
                                 'current_value': elec_val,
-                                'threshold': 98,
+                                'threshold': LOW_BATTERY_ALARM_THRESHOLD,
                                 'alarm_time': timestamp
                             })
                             

@@ -233,4 +233,4 @@ if __name__ == '__main__':
     print(" 外网地址: https://video.fusionfintrade.com/")
     print("=====================================================")
     # 绑定 127.0.0.1 仅允许本地 Nginx 代理访问，提升安全性
-    app.run(host='127.0.0.1', port=15898, debug=False)
+    app.run(host='0.0.0.0', port=15898, debug=False)
